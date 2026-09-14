@@ -1,2 +1,4 @@
+//Pliki do zignorowania
 build/
 .vscode/
+*.db
