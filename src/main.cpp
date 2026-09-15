@@ -1,8 +1,101 @@
 #include <iostream>
 #include <string>
-#include <chrono>
-#include <ctime>
+//#include <chrono>
+//#include <ctime>
 #include <sqlite3.h>
+#include <stdexcept>
+
+enum class Status {
+    Proposed,
+    Accepted,
+    Planned,
+    Completed,
+    Missed
+};
+
+class Date{
+    int day;
+    int month;
+    int year;
+public:
+    Date(int Day, int Month, int Year)
+        : day(Day), month(Month), year(Year)
+    {
+        if (day < 1 || day > 31)
+            throw std::invalid_argument("Invalid day");
+
+        if (month < 1 || month > 12)
+            throw std::invalid_argument("Invalid month");
+
+        if (year < 2026)
+            throw std::invalid_argument("Invalid year");
+}
+
+    int getDay() const{
+        return day;
+    }
+
+    int getMonth() const{
+        return month;
+    }
+
+    int getYear() const{
+        return year;
+    }
+};
+
+class Time{
+    int hour;
+    int minute;
+    int second;
+public:
+    Time(int Hour, int Minute, int Second)
+    : hour(Hour), minute(Minute), second(Second)
+    {
+        if (hour < 0 || hour >= 24)
+            throw std::invalid_argument("Invalid hour");
+
+        if (minute < 0 || minute >= 60)
+            throw std::invalid_argument("Invalid minute");
+
+        if (second < 0 || second >= 60)
+            throw std::invalid_argument("Invalid second");
+}
+    int getHour() const{
+        return hour;
+    }
+
+    int getMinute() const{
+        return minute;
+    }
+
+    int getSecond() const{
+        return second;
+    }
+};
+
+class Training{
+        Date date;
+        Time startTime; 
+        Time endTime;
+        std::string name;
+        Status status; //lepiej klasa status czy klasyczny string
+public://popraw konstruktor
+    Training(Date Date_, Time StartTime, Time EndTime, std::string Name, Status Status){
+        date = Date_;
+        endTime = EndTime;
+        startTime = StartTime;
+        name = Name;
+        status = Status;
+
+    }
+
+
+};
+
+void sendToDatabase(){
+    //tutaj dodaj notowanie treningu do bazy
+}
 
 int main()
 {
@@ -22,7 +115,7 @@ int main()
     std::cout << "Baza danych zostala otwarta!\n";
 
     const char* sql = R"(
-        CREATE TABLE IF NOT EXISTS users (
+        CREATE TABLE IF NOT EXISTS trainings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             date DATE NOT NULL,
             StartTime TIME,
@@ -51,7 +144,8 @@ int main()
     sqlite3_close(db);
 
     return 0;
-}
+};
+
 /*
 int main(){
 for(int i =0; i<3;i++){
