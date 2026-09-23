@@ -1,15 +1,24 @@
-#ifndef Training //czy to dobra nazwa
-#define Training
+#ifndef TRAINING
+#define TRAINING
 
-#include "Date.hpp" //utworz
+#include "Date.hpp" 
 #include "Time.hpp"
 #include "Status.hpp"
 #include <string>
 
 class Training{
 public:
-    Training();
-    void sendToDatabase();
+    Training(Date Date_, Time StartTime, Time EndTime, std::string Name, Status Status);
+
+    Time getstartTime();
+    Time getendTime();
+    std::string getDate();
+    std::string getTime(Time time);
+    std::string getName();
+    std::string getStatus();
+
+    void changeTrainingStatus(); //to do
+
 private:
     Date date;
     Time startTime; 

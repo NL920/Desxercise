@@ -24,3 +24,8 @@
     int Time::getSecond() const{
         return second;
     }
+
+    std::string Time::stringTime(){
+        std::string StringTime = (hour < 10 ? "0" : "") + std::to_string(hour) + ":" + (minute < 10 ? "0" : "") + std::to_string(minute) + ":" + (second < 10 ? "0" : "") + std::to_string(second);
+        return StringTime;
+    }

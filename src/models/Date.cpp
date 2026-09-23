@@ -1,5 +1,6 @@
 #include "Date.hpp"
 #include <stdexcept>
+#include <string>
 
 
     Date::Date(int Day, int Month, int Year)
@@ -25,4 +26,9 @@
 
     int Date::getYear() const{
         return year;
+    }
+
+    std::string Date::stringDate(){
+        std::string StringDate = std::to_string(year) + "-" + (month < 10 ? "0" : "") + std::to_string(month) + "-" + (day < 10 ? "0" : "") + std::to_string(day);
+        return StringDate;
     }

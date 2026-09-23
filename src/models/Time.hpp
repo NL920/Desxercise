@@ -8,6 +8,8 @@ public:
     int getMinute() const;
     int getSecond() const;
 
+    std::string Time::stringTime();
+
 private:
     int hour;
     int minute;
