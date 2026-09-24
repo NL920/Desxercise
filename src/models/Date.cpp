@@ -12,7 +12,7 @@
         if (month < 1 || month > 12)
             throw std::invalid_argument("Invalid month");
 
-        if (year < 2026)
+        if (year < 2026)//wzmocnij ten argument
             throw std::invalid_argument("Invalid year");
     }
 

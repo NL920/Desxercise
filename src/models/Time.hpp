@@ -1,5 +1,8 @@
 #ifndef TIME
 #define TIME
+
+#include <string>
+
 class Time{
 public:
     Time(int Hour, int Minute, int Second);
@@ -8,7 +11,7 @@ public:
     int getMinute() const;
     int getSecond() const;
 
-    std::string Time::stringTime();
+    std::string stringTime();
 
 private:
     int hour;

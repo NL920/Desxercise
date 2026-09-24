@@ -1,5 +1,6 @@
 #include "Time.hpp"
 #include <stdexcept>
+#include <string>
 
     Time::Time(int Hour, int Minute, int Second)
     : hour(Hour), minute(Minute), second(Second)

@@ -4,7 +4,7 @@
 #include "Training.hpp"
 #include "Date.hpp"
 #include "Time.hpp"
-#include "Database.cpp"
+#include "Database.hpp"
 
 
 Training::Training(Date Date_, Time StartTime, Time EndTime, std::string Name, Status Status):

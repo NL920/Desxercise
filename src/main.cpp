@@ -5,6 +5,29 @@
 #include <sqlite3.h>
 #include <stdexcept>
 
+#include "Database.hpp"
+#include "Training.hpp"
+#include "Time.hpp"
+#include "Date.hpp"
+#include "Status.hpp"
+
+int main(){
+Time firststart = Time(10,41,0);
+Time firstend = Time(11,52,0);
+Date firstdate = Date(24,9,2026);
+std::string firstname = "Basen";
+Status firststatus = Status(Status::Completed);
+Training firsttr = Training(firstdate, firststart, firstend, firstname, firststatus);
+
+openDatabase("trainings.db");
+createTrainingsTable();
+addTrainingToDatabase("trainings.db", firsttr);
+
+std::cout<<"Udało się"<<std::endl;
+
+}
+
+
 /*
 int main(){
 for(int i =0; i<3;i++){
@@ -31,3 +54,8 @@ cd build
 cmake ..
 cmake --build .
 */
+
+/*sqlite3 trainings.db
+.tables
+.schema trainings
+.quit*/
