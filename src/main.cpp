@@ -16,12 +16,13 @@ Time firststart = Time(10,41,0);
 Time firstend = Time(11,52,0);
 Date firstdate = Date(24,9,2026);
 std::string firstname = "Basen";
-Status firststatus = Status(Status::Completed);
+Status firststatus = Status(Status::Missed);
 Training firsttr = Training(firstdate, firststart, firstend, firstname, firststatus);
 
 openDatabase("trainings.db");
 createTrainingsTable();
-addTrainingToDatabase("trainings.db", firsttr);
+//addTrainingToDatabase("trainings.db",firsttr);
+changeTrainingStatus(firsttr, Status::Completed);
 
 std::cout<<"Udało się"<<std::endl;
 

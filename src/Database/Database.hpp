@@ -14,4 +14,8 @@ void createTrainingsTable();
 
 void addTrainingToDatabase(std::string nameDatabase, Training training);
 
+void replaceStatusInDatabase(std::string oldDate, std::string oldStartTime, Training newtraining);
+
+void changeTrainingStatus(Training training, Status newStatus);
+
 #endif

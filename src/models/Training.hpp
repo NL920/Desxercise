@@ -17,7 +17,7 @@ public:
     std::string getName();
     std::string getStatus();
 
-    void changeTrainingStatus(); //to do
+    void changeStatus(Status newstatus); //to do
 
 private:
     Date date;

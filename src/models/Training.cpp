@@ -11,7 +11,7 @@ Training::Training(Date Date_, Time StartTime, Time EndTime, std::string Name, S
     date (Date_),startTime (StartTime),endTime (EndTime),name (Name),status(Status){}
 
 
-Time Training::getstartTime(){
+Time Training::getstartTime(){//do poprawienia nazwy wszędzie
     return startTime;
 }
 
@@ -37,4 +37,6 @@ std::string Training::getTime(Time time){
     return newTime;
 }
 
-void changeTrainingStatus(){}
+void Training::changeStatus(Status newstatus){
+    status = newstatus;
+}

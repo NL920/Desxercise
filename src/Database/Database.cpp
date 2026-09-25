@@ -107,12 +107,47 @@ void addTrainingToDatabase(std::string nameDatabase, Training training){
     return;
 }
 
+void replaceStatusInDatabase(std::string oldDate, std::string oldStartTime, Training newtraining){
+    sqlite3 * base = openDatabase("trainings.db");
+    if (base == nullptr) {
+        return;
+    }
 
-/*//gdzie powinna znaleźć się ta funkcja
-void Training::sendToDatabase(){
-    openDatabase("trainings.db");
-    createTable("trainings.db", "trainings");
-    addTrainingToDatabase(date, startTime, endTime, name, status);
-    closeDatabase("trainings.db");
-}*/
+    const char* sql = "UPDATE trainings "
+    "SET status = ? "
+    "WHERE date = ? AND startTime = ?;";
 
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(base, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "Błąd prepare: "
+                  << sqlite3_errmsg(base) << std::endl;
+        sqlite3_close(base);
+        return;
+    }
+
+    std::string status = newtraining.getStatus();
+    
+    sqlite3_bind_text(stmt, 1, status.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, oldDate.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 3, oldStartTime.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        std::cerr << "Błąd INSERT: "
+                  << sqlite3_errmsg(base) << std::endl;
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(base);
+    return;
+}
+
+void changeTrainingStatus(Training training, Status newStatus){
+    std::string oldDate = training.getDate();
+    std::string oldStartTime = training.getTime(training.getstartTime());
+
+    training.changeStatus(newStatus); //zmiana Statusu w obiekcie Trening
+    replaceStatusInDatabase(oldDate, oldStartTime,training); //zmiana statusu w bazie
+    
+    std::cout<<"Status update finished"<<std::endl;
+}
