@@ -7,6 +7,7 @@
 #include "Time.hpp"
 #include "Status.hpp"
 #include "Training.hpp"
+#include "Converters.hpp"
 
 //do naprawienia, wskaźnik na bazę, gdzie umiescic funkcje, 
 //zastąp kopiowanie referencją
@@ -142,7 +143,7 @@ void replaceStatusInDatabase(std::string oldDate, std::string oldStartTime, Trai
     return;
 }
 
-void changeTrainingStatus(Training training, Status newStatus){
+void changeTrainingStatus(Training& training, Status newStatus){
     std::string oldDate = training.getDate();
     std::string oldStartTime = training.getTime(training.getstartTime());
 
@@ -150,4 +151,60 @@ void changeTrainingStatus(Training training, Status newStatus){
     replaceStatusInDatabase(oldDate, oldStartTime,training); //zmiana statusu w bazie
     
     std::cout<<"Status update finished"<<std::endl;
+}
+
+Training getTrainingFromDatabase(const std::string& date, const std::string& startTime){
+    sqlite3 * base = openDatabase("trainings.db");
+    if (base == nullptr) {
+        throw std::runtime_error("Couldn't open database");
+    }
+    const char* sql = "SELECT  date, startTime, endTime, name, status" " FROM trainings "
+    "WHERE date = ? AND startTime = ?;";
+
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(base, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+    std::string error = sqlite3_errmsg(base);
+    sqlite3_close(base);
+
+    throw std::runtime_error("Błąd prepare: " + error);
+    }
+
+
+    sqlite3_bind_text(stmt, 1, date.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, startTime.c_str(), -1, SQLITE_TRANSIENT);
+
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        std::string databaseDate =
+            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+
+        std::string databaseStartTime =
+            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+
+        std::string databaseEndTime =
+            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+
+        std::string databaseName =
+            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+
+        std::string databaseStatus =
+            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+
+        sqlite3_finalize(stmt);
+        sqlite3_close(base);
+
+        // zamiana string na Date, Time i Status - Converters.hpp
+        Date trainingDate = stringToDate(databaseDate);
+        Time trainingStartTime = stringToTime(databaseStartTime);
+        Time trainingEndTime = stringToTime(databaseEndTime);
+        Status trainingStatus = stringToStatus(databaseStatus);
+
+        return Training(trainingDate,trainingStartTime,trainingEndTime,databaseName,trainingStatus);
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(base);
+
+    throw std::runtime_error("Nie znaleziono treningu");
 }

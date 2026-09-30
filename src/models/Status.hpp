@@ -8,7 +8,8 @@ enum class Status {
     Accepted,
     Planned,
     Completed,
-    Missed
+    Missed,
+    Unknown
 };
 
 inline std::string stringStatus(Status status) {
