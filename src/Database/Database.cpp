@@ -19,19 +19,19 @@ sqlite3* openDatabase(std::string name){ //otwieranie bazy
 
     if (result != SQLITE_OK)
         {
-            std::cerr << "Nie udalo sie otworzyc bazy: "
+            std::cerr << "Couldn't open database: "
                     << sqlite3_errmsg(db) << '\n';
 
             sqlite3_close(db);
             return nullptr;
         }
 
-        std::cout << "Baza danych zostala otwarta!\n";
+        std::cout << "Database is open!\n";
     return db;
 }
 
-void createTrainingsTable(){ //tworzenie tabeli jeżeli jej nie ma
-    sqlite3* base = openDatabase("trainings.db");
+void createTrainingsTable(std::string database){ //tworzenie tabeli jeżeli jej nie ma
+    sqlite3* base = openDatabase(database);
     if (base == nullptr){
         return;
     }
@@ -53,7 +53,7 @@ void createTrainingsTable(){ //tworzenie tabeli jeżeli jej nie ma
 
     if (result != SQLITE_OK)
     {
-        std::cerr << "Blad tworzenia tabeli: "
+        std::cerr << "Error creating table: "
                   << errorMessage << '\n';
 
         sqlite3_free(errorMessage);
@@ -61,7 +61,7 @@ void createTrainingsTable(){ //tworzenie tabeli jeżeli jej nie ma
         return;
     }
 
-    std::cout << "Tabela zostala utworzona!\n";
+    std::cout << "Table is created!\n";
     sqlite3_close(base);
 
 }
@@ -79,7 +79,7 @@ void addTrainingToDatabase(std::string nameDatabase, Training training){
     sqlite3_stmt* stmt;
 
     if (sqlite3_prepare_v2(base, sql, -1, &stmt, nullptr) != SQLITE_OK) {
-        std::cerr << "Błąd prepare: "
+        std::cerr << "Error prepare: "
                   << sqlite3_errmsg(base) << std::endl;
         sqlite3_close(base);
         return;
@@ -99,7 +99,7 @@ void addTrainingToDatabase(std::string nameDatabase, Training training){
     
 
     if (sqlite3_step(stmt) != SQLITE_DONE) {
-        std::cerr << "Błąd INSERT: "
+        std::cerr << "Error INSERT: "
                   << sqlite3_errmsg(base) << std::endl;
     }
 
@@ -108,8 +108,8 @@ void addTrainingToDatabase(std::string nameDatabase, Training training){
     return;
 }
 
-void replaceStatusInDatabase(std::string oldDate, std::string oldStartTime, Training newtraining){
-    sqlite3 * base = openDatabase("trainings.db");
+void replaceStatusInDatabase(std::string database, std::string oldDate, std::string oldStartTime, Training newtraining){
+    sqlite3 * base = openDatabase(database);
     if (base == nullptr) {
         return;
     }
@@ -121,12 +121,12 @@ void replaceStatusInDatabase(std::string oldDate, std::string oldStartTime, Trai
     sqlite3_stmt* stmt;
 
     if (sqlite3_prepare_v2(base, sql, -1, &stmt, nullptr) != SQLITE_OK) {
-        std::cerr << "Błąd prepare: "
+        std::cerr << "Error prepare: "
                   << sqlite3_errmsg(base) << std::endl;
         sqlite3_close(base);
         return;
     }
-
+    
     std::string status = newtraining.getStatus();
     
     sqlite3_bind_text(stmt, 1, status.c_str(), -1, SQLITE_TRANSIENT);
@@ -134,8 +134,13 @@ void replaceStatusInDatabase(std::string oldDate, std::string oldStartTime, Trai
     sqlite3_bind_text(stmt, 3, oldStartTime.c_str(), -1, SQLITE_TRANSIENT);
 
     if (sqlite3_step(stmt) != SQLITE_DONE) {
-        std::cerr << "Błąd INSERT: "
+        std::cerr << "Error INSERT: "
                   << sqlite3_errmsg(base) << std::endl;
+    }
+    else if (sqlite3_changes(base) == 0) {
+        sqlite3_finalize(stmt);
+        sqlite3_close(base);
+        throw std::runtime_error("Training not found");
     }
 
     sqlite3_finalize(stmt);
@@ -143,18 +148,18 @@ void replaceStatusInDatabase(std::string oldDate, std::string oldStartTime, Trai
     return;
 }
 
-void changeTrainingStatus(Training& training, Status newStatus){
+void changeTrainingStatus(std::string database,Training& training, Status newStatus){
     std::string oldDate = training.getDate();
     std::string oldStartTime = training.getTime(training.getstartTime());
 
+    replaceStatusInDatabase(database, oldDate, oldStartTime,training); //zmiana statusu w bazie
     training.changeStatus(newStatus); //zmiana Statusu w obiekcie Trening
-    replaceStatusInDatabase(oldDate, oldStartTime,training); //zmiana statusu w bazie
-    
+
     std::cout<<"Status update finished"<<std::endl;
 }
 
-Training getTrainingFromDatabase(const std::string& date, const std::string& startTime){
-    sqlite3 * base = openDatabase("trainings.db");
+Training getTrainingFromDatabase(std::string database,const std::string& date, const std::string& startTime){
+    sqlite3 * base = openDatabase(database);
     if (base == nullptr) {
         throw std::runtime_error("Couldn't open database");
     }
@@ -167,7 +172,7 @@ Training getTrainingFromDatabase(const std::string& date, const std::string& sta
     std::string error = sqlite3_errmsg(base);
     sqlite3_close(base);
 
-    throw std::runtime_error("Błąd prepare: " + error);
+    throw std::runtime_error("Error prepare: " + error);
     }
 
 
@@ -206,5 +211,5 @@ Training getTrainingFromDatabase(const std::string& date, const std::string& sta
     sqlite3_finalize(stmt);
     sqlite3_close(base);
 
-    throw std::runtime_error("Nie znaleziono treningu");
+    throw std::runtime_error("Couldn't find training");
 }

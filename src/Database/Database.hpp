@@ -10,14 +10,14 @@
 
 sqlite3* openDatabase(std::string name);
 
-void createTrainingsTable();
+void createTrainingsTable(std::string database);
 
 void addTrainingToDatabase(std::string nameDatabase, Training training);
 
-void replaceStatusInDatabase(std::string oldDate, std::string oldStartTime, Training newtraining);
+void replaceStatusInDatabase(std::string database, std::string oldDate, std::string oldStartTime, Training newtraining);
 
-void changeTrainingStatus(Training& training, Status newStatus);//ref do oryginału!
+void changeTrainingStatus(std::string database, Training& training, Status newStatus);//ref do oryginału!
 
-Training getTrainingFromDatabase(const std::string name, const std::string startTime);
+Training getTrainingFromDatabase(std::string database, const std::string& name, const std::string& startTime);
 
 #endif
